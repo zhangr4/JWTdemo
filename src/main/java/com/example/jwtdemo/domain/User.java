@@ -1,14 +1,15 @@
 package com.example.jwtdemo.domain;
 
 
-import lombok.Data;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class User {
     @Id@GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,5 +17,9 @@ public class User {
 
     private String userName;
 
+    private String password;
+
     private String email;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<Role> roles = new ArrayList<>();
 }
