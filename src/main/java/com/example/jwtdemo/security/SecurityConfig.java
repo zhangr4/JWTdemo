@@ -4,6 +4,7 @@ import com.example.jwtdemo.filter.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -41,13 +44,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
-
+        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
         //disable csrf() and make it stateless for json
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        //allow any request
-        http.authorizeRequests().anyRequest().permitAll();
-
+        //allow any request to "/login", it is a default
+        http.authorizeRequests().antMatchers("/api/login/**").permitAll();
+        http.authorizeRequests().antMatchers(GET,"/api/user/**").hasAnyRole("ROLE_USER");
+        http.authorizeRequests().antMatchers(POST,"/api/user/save/**").hasAnyRole("ROLE_ADMIN");
         //add filter for authentication
         http.addFilter(customAuthenticationFilter);
 
